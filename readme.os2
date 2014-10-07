@@ -1,0 +1,14 @@
+GNU ddrescue, a data recovery tool with a great redundance algorithm 
+which tries hard to rescue data in case of read errors, release 1.19 for OS/2.
+You should need some dll, this is the complete list of all packages containing 
+all dynamic libs (dll) you should have to use GNU ddrescue release 1.19:
+
+ftp://ftp.netlabs.org/pub/gcc/gcc4core-1_2_2.wpi (gcc473.dll)
+ftp://ftp.netlabs.org/pub/gcc/libc-0.6.5-csd5.zip (libc065.dll)
+
+To install as user, usually executables and libs should be respectively somewhere 
+in path and in libpath statements.
+The --help swich show an inuitive list of all options for both the programs.
+More info are available at:
+http://www.gnu.org/software/ddrescue/ddrescue.html
+Gianfilippo Cimmino (gianfli dot cim @ gmail dot com).

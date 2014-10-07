@@ -1,0 +1,318 @@
+diff --git "a/X:\\ddrescue-1.19-os2/Makefile" "b/X:\\ddrescue-1.19-os2/Makefile"
+new file mode 100644
+index 0000000..ee90623
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/Makefile"
+@@ -0,0 +1,165 @@
++# Makefile for GNU ddrescue - Data recovery tool
++# Copyright (C) 2004-2014 Antonio Diaz Diaz.
++# This file was generated automatically by configure. Do not edit.
++#
++# This Makefile is free software: you have unlimited permission
++# to copy, distribute and modify it.
++
++pkgname = ddrescue
++pkgversion = 1.19
++progname = ddrescue
++use_linux = 
++VPATH = .
++prefix = /ddrescue
++exec_prefix = $(prefix)
++bindir = $(exec_prefix)/bin
++datarootdir = $(prefix)/share
++infodir = $(datarootdir)/info
++mandir = $(datarootdir)/man
++CXX = g++
++CPPFLAGS = -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall
++CXXFLAGS = -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall
++LDFLAGS = -Zexe -Zomf -Zmap -Zhigh-mem -Zstack 8000 -D__ST_MT_ERRNO__ -static-libgcc
++
++DISTNAME = $(pkgname)-$(pkgversion)
++INSTALL = install
++INSTALL_PROGRAM = $(INSTALL) -m 755
++INSTALL_DATA = $(INSTALL) -m 644
++INSTALL_DIR = $(INSTALL) -d -m 755
++SHELL = /bin/sh
++extension = .exe
++
++ddobjs = fillbook.o genbook.o io.o logbook.o rescuebook.o main.o
++objs = arg_parser.o block.o linux.o logfile.o loggers.o rational.o $(ddobjs)
++logobjs = arg_parser.o block.o logbook.o logfile.o ddrescuelog.o
++
++
++.PHONY : all install install-bin install-info install-man install-strip \
++         uninstall uninstall-bin uninstall-info uninstall-man \
++         doc info man check dist clean distclean
++
++all : $(progname)$(extension) ddrescuelog$(extension)
++
++$(progname)$(extension) : $(objs)
++	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(objs)
++
++ddrescuelog$(extension) : $(logobjs)
++	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(logobjs)
++
++static_$(progname)$(extension) : $(objs)
++	$(CXX) $(CXXFLAGS) $(LDFLAGS) -static-libgcc -o $@ $(objs)
++
++linux.o : linux.cc
++	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(use_linux) -c -o $@ $<
++
++main.o : main.cc
++	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -DPROGVERSION=\"$(pkgversion)\" -c -o $@ $<
++
++ddrescuelog.o : ddrescuelog.cc
++	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -DPROGVERSION=\"$(pkgversion)\" -c -o $@ $<
++
++%.o : %.cc
++	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
++
++$(objs)       : Makefile
++$(ddobjs)     : block.h ddrescue.h
++arg_parser.o  : arg_parser.h
++block.o       : block.h
++io.o          : loggers.h
++linux.o       : linux.h
++logfile.o     : block.h
++loggers.o     : block.h loggers.h
++rational.o    : rational.h
++rescuebook.o  : loggers.h
++main.o        : arg_parser.h rational.h linux.h loggers.h main_common.cc
++ddrescuelog.o : Makefile arg_parser.h block.h ddrescue.h main_common.cc
++
++
++doc : info man
++
++info : $(VPATH)/doc/$(pkgname).info
++
++$(VPATH)/doc/$(pkgname).info : $(VPATH)/doc/$(pkgname).texi
++	cd $(VPATH)/doc && makeinfo $(pkgname).texi
++
++man : $(VPATH)/doc/$(progname).1 $(VPATH)/doc/ddrescuelog.1
++
++$(VPATH)/doc/$(progname).1 : $(progname)
++	help2man -n 'data recovery tool' -o $@ ./$(progname)
++
++$(VPATH)/doc/ddrescuelog.1 : ddrescuelog
++	help2man -n 'tool for ddrescue logfiles' -o $@ --no-info ./ddrescuelog
++
++Makefile : $(VPATH)/configure $(VPATH)/Makefile.in
++	./config.status
++
++check : all
++	@$(VPATH)/testsuite/check.sh $(VPATH)/testsuite $(pkgversion)
++
++install : install-bin install-info install-man
++
++install-bin : all
++	if [ ! -d "$(DESTDIR)$(bindir)" ] ; then $(INSTALL_DIR) "$(DESTDIR)$(bindir)" ; fi
++	$(INSTALL_PROGRAM) ./$(progname)$(extension) "$(DESTDIR)$(bindir)/$(progname)$(extension)"
++	$(INSTALL_PROGRAM) ./ddrescuelog$(extension) "$(DESTDIR)$(bindir)/ddrescuelog$(extension)"
++
++install-info :
++	if [ ! -d "$(DESTDIR)$(infodir)" ] ; then $(INSTALL_DIR) "$(DESTDIR)$(infodir)" ; fi
++	$(INSTALL_DATA) $(VPATH)/doc/$(pkgname).info "$(DESTDIR)$(infodir)/$(pkgname).info"
++	-install-info --info-dir="$(DESTDIR)$(infodir)" "$(DESTDIR)$(infodir)/$(pkgname).info"
++
++install-man :
++	if [ ! -d "$(DESTDIR)$(mandir)/man1" ] ; then $(INSTALL_DIR) "$(DESTDIR)$(mandir)/man1" ; fi
++	$(INSTALL_DATA) $(VPATH)/doc/$(progname).1 "$(DESTDIR)$(mandir)/man1/$(progname).1"
++	$(INSTALL_DATA) $(VPATH)/doc/ddrescuelog.1 "$(DESTDIR)$(mandir)/man1/ddrescuelog.1"
++
++install-strip : all
++	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
++
++uninstall : uninstall-bin uninstall-info uninstall-man
++
++uninstall-bin :
++	-rm -f "$(DESTDIR)$(bindir)/$(progname)$(extension)"
++	-rm -f "$(DESTDIR)$(bindir)/ddrescuelog$(extension)"
++
++uninstall-info :
++	-install-info --info-dir="$(DESTDIR)$(infodir)" --remove "$(DESTDIR)$(infodir)/$(pkgname).info"
++	-rm -f "$(DESTDIR)$(infodir)/$(pkgname).info"
++
++uninstall-man :
++	-rm -f "$(DESTDIR)$(mandir)/man1/$(progname).1"
++	-rm -f "$(DESTDIR)$(mandir)/man1/ddrescuelog.1"
++
++dist : doc
++	ln -sf $(VPATH) $(DISTNAME)
++	tar -Hustar --owner=root --group=root -cvf $(DISTNAME).tar \
++	  $(DISTNAME)/AUTHORS \
++	  $(DISTNAME)/COPYING \
++	  $(DISTNAME)/ChangeLog \
++	  $(DISTNAME)/INSTALL \
++	  $(DISTNAME)/Makefile.in \
++	  $(DISTNAME)/NEWS \
++	  $(DISTNAME)/README \
++	  $(DISTNAME)/configure \
++	  $(DISTNAME)/doc/$(progname).1 \
++	  $(DISTNAME)/doc/ddrescuelog.1 \
++	  $(DISTNAME)/doc/$(pkgname).info \
++	  $(DISTNAME)/doc/$(pkgname).texi \
++	  $(DISTNAME)/testsuite/check.sh \
++	  $(DISTNAME)/testsuite/logfile[1-5] \
++	  $(DISTNAME)/testsuite/logfile2i \
++	  $(DISTNAME)/testsuite/logfile_blank \
++	  $(DISTNAME)/testsuite/test.txt \
++	  $(DISTNAME)/testsuite/test1.txt \
++	  $(DISTNAME)/testsuite/test2.txt \
++	  $(DISTNAME)/*.h \
++	  $(DISTNAME)/*.cc
++	rm -f $(DISTNAME)
++	lzip -v -9 $(DISTNAME).tar
++
++clean :
++	-rm -f $(progname)$(extension) $(objs)
++	-rm -f static_$(progname)$(extension) ddrescuelog$(extension) ddrescuelog.o
++
++distclean : clean
++	-rm -f Makefile config.status *.tar *.tar.lz
+diff --git "a/X:\\ddrescue-1.19/Makefile.in" "b/X:\\ddrescue-1.19-os2/Makefile.in"
+index de0c787..7f1107b 100644
+--- "a/X:\\ddrescue-1.19/Makefile.in"
++++ "b/X:\\ddrescue-1.19-os2/Makefile.in"
+@@ -5,6 +5,7 @@ INSTALL_PROGRAM = $(INSTALL) -m 755
+ INSTALL_DATA = $(INSTALL) -m 644
+ INSTALL_DIR = $(INSTALL) -d -m 755
+ SHELL = /bin/sh
++extension = .exe
+ 
+ ddobjs = fillbook.o genbook.o io.o logbook.o rescuebook.o main.o
+ objs = arg_parser.o block.o linux.o logfile.o loggers.o rational.o $(ddobjs)
+@@ -15,16 +16,16 @@ logobjs = arg_parser.o block.o logbook.o logfile.o ddrescuelog.o
+          uninstall uninstall-bin uninstall-info uninstall-man \
+          doc info man check dist clean distclean
+ 
+-all : $(progname) ddrescuelog
++all : $(progname)$(extension) ddrescuelog$(extension)
+ 
+-$(progname) : $(objs)
++$(progname)$(extension) : $(objs)
+ 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(objs)
+ 
+-ddrescuelog : $(logobjs)
++ddrescuelog$(extension) : $(logobjs)
+ 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(logobjs)
+ 
+-static_$(progname) : $(objs)
+-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -static -o $@ $(objs)
++static_$(progname)$(extension) : $(objs)
++	$(CXX) $(CXXFLAGS) $(LDFLAGS) -static-libgcc -o $@ $(objs)
+ 
+ linux.o : linux.cc
+ 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(use_linux) -c -o $@ $<
+@@ -77,8 +78,8 @@ install : install-bin install-info install-man
+ 
+ install-bin : all
+ 	if [ ! -d "$(DESTDIR)$(bindir)" ] ; then $(INSTALL_DIR) "$(DESTDIR)$(bindir)" ; fi
+-	$(INSTALL_PROGRAM) ./$(progname) "$(DESTDIR)$(bindir)/$(progname)"
+-	$(INSTALL_PROGRAM) ./ddrescuelog "$(DESTDIR)$(bindir)/ddrescuelog"
++	$(INSTALL_PROGRAM) ./$(progname)$(extension) "$(DESTDIR)$(bindir)/$(progname)$(extension)"
++	$(INSTALL_PROGRAM) ./ddrescuelog$(extension) "$(DESTDIR)$(bindir)/ddrescuelog$(extension)"
+ 
+ install-info :
+ 	if [ ! -d "$(DESTDIR)$(infodir)" ] ; then $(INSTALL_DIR) "$(DESTDIR)$(infodir)" ; fi
+@@ -96,8 +97,8 @@ install-strip : all
+ uninstall : uninstall-bin uninstall-info uninstall-man
+ 
+ uninstall-bin :
+-	-rm -f "$(DESTDIR)$(bindir)/$(progname)"
+-	-rm -f "$(DESTDIR)$(bindir)/ddrescuelog"
++	-rm -f "$(DESTDIR)$(bindir)/$(progname)$(extension)"
++	-rm -f "$(DESTDIR)$(bindir)/ddrescuelog$(extension)"
+ 
+ uninstall-info :
+ 	-install-info --info-dir="$(DESTDIR)$(infodir)" --remove "$(DESTDIR)$(infodir)/$(pkgname).info"
+@@ -135,8 +136,8 @@ dist : doc
+ 	lzip -v -9 $(DISTNAME).tar
+ 
+ clean :
+-	-rm -f $(progname) $(objs)
+-	-rm -f static_$(progname) ddrescuelog ddrescuelog.o
++	-rm -f $(progname)$(extension) $(objs)
++	-rm -f static_$(progname)$(extension) ddrescuelog$(extension) ddrescuelog.o
+ 
+ distclean : clean
+ 	-rm -f Makefile config.status *.tar *.tar.lz
+diff --git "a/X:\\ddrescue-1.19-os2/build.log" "b/X:\\ddrescue-1.19-os2/build.log"
+new file mode 100644
+index 0000000..a26c620
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/build.log"
+@@ -0,0 +1,15 @@
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o arg_parser.o arg_parser.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o block.o block.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall  -c -o linux.o linux.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o logfile.o logfile.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o loggers.o loggers.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o rational.o rational.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o fillbook.o fillbook.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o genbook.o genbook.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o io.o io.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o logbook.o logbook.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -c -o rescuebook.o rescuebook.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -DPROGVERSION=\"1.19\" -c -o main.o main.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -Zexe -Zomf -Zmap -Zhigh-mem -Zstack 8000 -D__ST_MT_ERRNO__ -static-libgcc -o ddrescue.exe arg_parser.o block.o linux.o logfile.o loggers.o rational.o fillbook.o genbook.o io.o logbook.o rescuebook.o main.o
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -DPROGVERSION=\"1.19\" -c -o ddrescuelog.o ddrescuelog.cc
++g++ -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall -Zexe -Zomf -Zmap -Zhigh-mem -Zstack 8000 -D__ST_MT_ERRNO__ -static-libgcc -o ddrescuelog.exe arg_parser.o block.o logbook.o logfile.o ddrescuelog.o
+diff --git "a/X:\\ddrescue-1.19-os2/check.log" "b/X:\\ddrescue-1.19-os2/check.log"
+new file mode 100644
+index 0000000..4843ed1
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/check.log"
+@@ -0,0 +1,3 @@
++testing ddrescue-1.19.........................................
++testing ddrescuelog-1.19..............................................
++tests completed successfully.
+diff --git "a/X:\\ddrescue-1.19-os2/config.status" "b/X:\\ddrescue-1.19-os2/config.status"
+new file mode 100644
+index 0000000..75fdc92
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/config.status"
+@@ -0,0 +1,8 @@
++#! /bin/sh
++# This file was generated automatically by configure. Do not edit.
++# Run this file to recreate the current configuration.
++#
++# This script is free software: you have unlimited permission
++# to copy, distribute and modify it.
++
++exec /bin/sh configure  "--prefix=/ddrescue" "CXX=g++" "CXXFLAGS=-D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall" "CPPFLAGS=-D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall" "LDFLAGS=-Zexe -Zomf -Zmap -Zhigh-mem -Zstack 8000 -D__ST_MT_ERRNO__ -static-libgcc" --no-create
+diff --git "a/X:\\ddrescue-1.19-os2/configure.log" "b/X:\\ddrescue-1.19-os2/configure.log"
+new file mode 100644
+index 0000000..abe874c
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/configure.log"
+@@ -0,0 +1,15 @@
++
++creating config.status
++creating Makefile
++VPATH = .
++prefix = /ddrescue
++exec_prefix = $(prefix)
++bindir = $(exec_prefix)/bin
++datarootdir = $(prefix)/share
++infodir = $(datarootdir)/info
++mandir = $(datarootdir)/man
++CXX = g++
++CPPFLAGS = -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall
++CXXFLAGS = -D__EMX__ -DEMX -DOS2 -D__ST_MT_ERRNO -O2 -march=pentium -mtune=pentium4 -static-libgcc -Wall
++LDFLAGS = -Zexe -Zomf -Zmap -Zhigh-mem -Zstack 8000 -D__ST_MT_ERRNO__ -static-libgcc
++OK. Now you can run make.
+diff --git "a/X:\\ddrescue-1.19-os2/install.log" "b/X:\\ddrescue-1.19-os2/install.log"
+new file mode 100644
+index 0000000..bc5c6c5
+--- /dev/null
++++ "b/X:\\ddrescue-1.19-os2/install.log"
+@@ -0,0 +1,9 @@
++if [ ! -d "/ddrescue/bin" ] ; then install -d -m 755 "/ddrescue/bin" ; fi
++install -m 755 ./ddrescue.exe "/ddrescue/bin/ddrescue.exe"
++install -m 755 ./ddrescuelog.exe "/ddrescue/bin/ddrescuelog.exe"
++if [ ! -d "/ddrescue/share/info" ] ; then install -d -m 755 "/ddrescue/share/info" ; fi
++install -m 644 ./doc/ddrescue.info "/ddrescue/share/info/ddrescue.info"
++install-info --info-dir="/ddrescue/share/info" "/ddrescue/share/info/ddrescue.info"
++if [ ! -d "/ddrescue/share/man/man1" ] ; then install -d -m 755 "/ddrescue/share/man/man1" ; fi
++install -m 644 ./doc/ddrescue.1 "/ddrescue/share/man/man1/ddrescue.1"
++install -m 644 ./doc/ddrescuelog.1 "/ddrescue/share/man/man1/ddrescuelog.1"
